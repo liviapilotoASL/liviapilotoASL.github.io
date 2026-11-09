@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Measure Hubble’s constant</title>
+<style>
+:root{--bg:#eef1f7;--panel:#fff;--text:#14182a;--mute:#566080;--line:#c9d0e2;--acc:#b86e00;--ok:#13805a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0e1d;--panel:#131a31;--text:#e8ecf8;--mute:#98a2c4;--line:#2a3558;--acc:#ffb347;--ok:#4fd6a0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0e1d;--panel:#131a31;--text:#e8ecf8;--mute:#98a2c4;--line:#2a3558;--acc:#ffb347;--ok:#4fd6a0;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+h1{font:700 28px/1.2 Georgia,"Times New Roman",serif;margin:8px 0}
+h2{font:600 19px/1.3 Georgia,serif;margin:0 0 6px}
+p{margin:6px 0;max-width:70ch}.mute{color:var(--mute)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:16px 0}
+canvas{width:100%;height:auto;display:block;border-radius:8px;background:#04060f;touch-action:none}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.row>.grow{flex:1 1 260px;min-width:0}.row>.fix{flex:0 1 380px;width:100%;max-width:380px}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}
+button.main{background:var(--acc);color:#14100a;border-color:var(--acc);font-weight:600}
+button:focus-visible,canvas:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.big{font:700 22px/1.3 Georgia,serif}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left}
+tr.sel td{background:rgba(255,179,71,.18)}tr[data-i]{cursor:pointer}
+.ok{color:var(--ok);font-weight:600}
+</style></head><body><main>
+<h1>Measure the expansion of the universe</h1>
+<p>Galaxies are moving away from us, and the farther away they are, the faster they go. You will measure the distance and the redshifted wavelength of galaxies. Write your measurements down, then use them to work out each galaxy’s speed and make your graph on your worksheet.</p>
+
+<section class="card"><h2>1. Choose a galaxy</h2>
+<p class="mute">Click a galaxy in this deep-field view. Smaller ones are farther away.</p>
+<canvas id="field" width="900" height="420" aria-label="Deep field with 8 galaxies"></canvas></section>
+
+<section class="card"><h2>2. Measure its distance</h2>
+<p>All these galaxies are really about the same size, so a galaxy that looks smaller is farther away. Resize the galaxy until its outer edge just touches the dashed circle.</p>
+<div class="row"><div class="fix"><canvas id="frame" width="380" height="380" tabindex="0" aria-label="Galaxy frame"></canvas></div>
+<div class="grow">
+<p><b>Resize:</b> press ↑ or + to enlarge, ↓ or − to shrink. Hold Shift for small steps.</p>
+<p><button id="dn" aria-label="Shrink">− Shrink</button> <button id="up" aria-label="Enlarge">+ Enlarge</button></p>
+<p class="mute">Magnification</p><div class="big" id="mag">–</div>
+<p class="mute">Estimated distance</p><div class="big" id="dest">–</div>
+<p><button class="main" id="recD">Record distance</button></p>
+<p class="mute">Magnification needed × a fixed factor gives the distance, because a galaxy twice as far looks half as big.</p>
+</div></div></section>
+
+<section class="card"><h2>3. Measure its speed</h2>
+<p>Calcium in a galaxy absorbs light at 393.4 nm in the lab, shown by the ▲ marker. In a moving galaxy the dark line is shifted toward red. Click the center of the dark line to record its wavelength.</p>
+<canvas id="spec" width="960" height="112" aria-label="Spectrum"></canvas>
+<p class="mute" id="hov">Move over the spectrum to read the wavelength.</p></section>
+
+<section class="card"><h2>4. Write down your results</h2>
+<p>Copy these numbers into the results table on your worksheet, then pick another galaxy and repeat.</p>
+<p class="big" id="rd">Pick a galaxy to begin.</p>
+<p><button id="rst">Start over</button></p></section>
+</main>
+<script>
+const C=299792,LAB=393.4,KF=2400,KB=4000,R=130,H=70;
+const D=[38,62,95,130,170,215,280,360],F=[1.04,.95,1.06,.97,1.03,.98,1.02,.96];
+const POS=[[.2,.3],[.55,.2],[.82,.38],[.35,.64],[.68,.72],[.12,.82],[.9,.85],[.47,.45]];
+const COL=[[190,210,255],[255,200,140],[255,175,195],[200,225,255],[255,205,150],[190,210,255],[255,195,160],[210,220,255]];
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const G=D.map((d,i)=>({id:i+1,d,x:POS[i][0],y:POS[i][1],col:COL[i],type:i%3==2?"e":"s",rot:i*.9+.3,incl:i%3==2?.7:.45+.08*(i%4),seed:i*17+3,s:1,dist:null,o:null,obs:LAB*(1+H*d*F[i]/C)}));
+let sel=null;
+const $=id=>document.getElementById(id);
+const cx=id=>$(id).getContext("2d");
+function pt(e,c){const r=c.getBoundingClientRect();return[(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]}
+
+function drawGal(c,x,y,r,g){
+ c.save();c.translate(x,y);c.rotate(g.rot);c.scale(1,g.incl);
+ const[a,b,d]=g.col,gr=c.createRadialGradient(0,0,0,0,0,r);
+ gr.addColorStop(0,`rgba(${a},${b},${d},.95)`);gr.addColorStop(.25,`rgba(${a},${b},${d},.5)`);gr.addColorStop(1,`rgba(${a},${b},${d},0)`);
+ c.fillStyle=gr;c.beginPath();c.arc(0,0,r,0,7);c.fill();
+ if(g.type=="s"){const rn=rng(g.seed),n=r>20?400:70,dot=Math.max(.9,r/55);
+  for(let k=0;k<n;k++){const t=rn(),arm=k%2?Math.PI:0,rad=r*(.15+.85*t),th=arm+t*4+(rn()-.5)*.5;
+   c.fillStyle=`rgba(200,220,255,${.25+.5*(1-t)})`;c.beginPath();c.arc(rad*Math.cos(th),rad*Math.sin(th),dot,0,7);c.fill()}}
+ c.restore()}
+
+function drawField(){
+ const c=cx("field"),W=900,Hh=420;c.fillStyle="#04060f";c.fillRect(0,0,W,Hh);
+ const rn=rng(7);for(let i=0;i<260;i++){c.fillStyle=`rgba(255,255,255,${rn()*.5})`;c.fillRect(rn()*W,rn()*Hh,1.3,1.3)}
+ G.forEach((g,i)=>{const x=g.x*W,y=g.y*Hh,r=KF/g.d;drawGal(c,x,y,r,g);
+  const done=g.dist!=null&&g.o!=null,off=Math.max(r,12);
+  c.font="14px system-ui";c.textAlign="center";c.fillStyle=done?"#4fd6a0":"#ffb347";c.fillText(g.id+(done?" ✓":""),x,y+off+18);
+  if(i==sel){c.strokeStyle="#ffb347";c.lineWidth=2;c.setLineDash([4,4]);c.beginPath();c.arc(x,y,off+6,0,7);c.stroke();c.setLineDash([])}})}
+
+function drawFrame(){
+ const c=cx("frame"),W=380;c.fillStyle="#04060f";c.fillRect(0,0,W,W);
+ if(sel==null){c.fillStyle="#98a2c4";c.font="15px system-ui";c.textAlign="center";c.fillText("Click a galaxy in the field above",W/2,W/2);return}
+ const g=G[sel];drawGal(c,W/2,W/2,KB/g.d*g.s,g);
+ c.strokeStyle="#ffb347";c.lineWidth=2;c.setLineDash([6,5]);c.beginPath();c.arc(W/2,W/2,R,0,7);c.stroke();c.setLineDash([])}
+
+function wl(l){let r=0,g=0,b=0;
+ if(l<440){r=(440-l)/60;b=1}else if(l<490){g=(l-440)/50;b=1}else if(l<510){g=1;b=(510-l)/20}else if(l<580){r=(l-510)/70;g=1}else if(l<645){r=1;g=(645-l)/65}else r=1;
+ const f=l<420?.3+.7*(l-380)/40:l>680?.3+.7*(700-l)/20:1;
+ return`rgb(${Math.round(255*r*f)},${Math.round(255*g*f)},${Math.round(255*b*f)})`}
+const X=l=>(l-380)/320*960,L=x=>380+x/960*320;
+let hover=null;
+function drawSpec(){
+ const c=cx("spec");c.fillStyle="#04060f";c.fillRect(0,0,960,112);
+ for(let x=0;x<960;x++){c.fillStyle=wl(L(x));c.fillRect(x,0,1,62)}
+ if(sel!=null){const g=G[sel],ox=X(g.obs);
+  for(let dx=-8;dx<=8;dx++){c.fillStyle=`rgba(0,0,0,${.9*Math.exp(-((dx/2.4)**2))})`;c.fillRect(Math.round(ox)+dx,0,1,62)}}
+ c.strokeStyle="#aab";c.fillStyle="#cbd2ea";c.font="12px system-ui";c.textAlign="center";c.lineWidth=1;
+ for(let l=380;l<=700;l+=20){const x=X(l);c.beginPath();c.moveTo(x,62);c.lineTo(x,l%40?68:74);c.stroke();if(l%40==0)c.fillText(l,x,88)}
+ c.fillStyle="#ffb347";const lx=X(LAB);c.beginPath();c.moveTo(lx,62);c.lineTo(lx-6,74);c.lineTo(lx+6,74);c.fill();
+ c.textAlign="left";c.fillText("▲ lab calcium line, 393.4 nm",lx-6,106);
+ if(sel!=null&&G[sel].o!=null){const x=X(G[sel].o);c.strokeStyle="#fff";c.lineWidth=2;c.beginPath();c.moveTo(x,0);c.lineTo(x,62);c.stroke();
+  c.fillStyle="#fff";c.textAlign="center";c.font="bold 13px system-ui";c.fillText(G[sel].o.toFixed(1)+" nm",Math.min(Math.max(x,40),920),100)}
+ if(hover!=null){c.strokeStyle="rgba(255,255,255,.7)";c.lineWidth=1;c.beginPath();c.moveTo(hover,0);c.lineTo(hover,62);c.stroke()}}
+
+function ui(){drawField();drawFrame();drawSpec();
+ const g=sel!=null?G[sel]:null;$("mag").textContent=g?"×"+g.s.toFixed(2):"–";$("dest").textContent=g?Math.round(g.s*KB/R)+" Mpc":"–";$("rd").textContent=g?"Galaxy "+g.id+": distance "+(g.dist!=null?g.dist+" Mpc":"not recorded yet")+", observed wavelength "+(g.o!=null?g.o.toFixed(1)+" nm":"not recorded yet"):"Pick a galaxy to begin."}
+
+function pick(i){sel=i;ui()}
+function zoom(f){if(sel==null)return;const g=G[sel];g.s=Math.min(60,Math.max(.2,g.s*f));ui()}
+$("field").addEventListener("pointerdown",e=>{const[x,y]=pt(e,$("field"));let best=null,bd=1e9;
+ G.forEach((g,i)=>{const d=Math.hypot(g.x*900-x,g.y*420-y);if(d<Math.max(KF/g.d,16)+10&&d<bd){bd=d;best=i}});if(best!=null)pick(best)});
+addEventListener("keydown",e=>{if(sel==null)return;const k=e.key,f=e.shiftKey?1.01:1.05;
+ if(k=="ArrowUp"||k=="+"||k=="="||k=="ArrowRight"){e.preventDefault();zoom(f)}
+ else if(k=="ArrowDown"||k=="-"||k=="_"||k=="ArrowLeft"){e.preventDefault();zoom(1/f)}});
+$("up").onclick=()=>zoom(1.05);$("dn").onclick=()=>zoom(1/1.05);
+$("recD").onclick=()=>{if(sel==null)return;G[sel].dist=Math.round(G[sel].s*KB/R);ui()};
+const sp=$("spec");
+sp.addEventListener("pointermove",e=>{const[x]=pt(e,sp);hover=x;$("hov").textContent="Pointer: "+L(x).toFixed(1)+" nm";drawSpec()});
+sp.addEventListener("pointerleave",()=>{hover=null;drawSpec()});
+sp.addEventListener("pointerdown",e=>{if(sel==null){$("hov").textContent="Pick a galaxy first.";return}const[x]=pt(e,sp);G[sel].o=Math.round(L(x)*10)/10;ui()});
+$("rst").onclick=()=>{G.forEach(g=>{g.s=1;g.dist=null;g.o=null});sel=null;ui()};
+ui();
+</script></body></html>
