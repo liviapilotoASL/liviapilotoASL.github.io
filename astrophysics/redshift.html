@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Redshift: reading motion from light</title>
+<style>
+:root{--bg:#eef1f7;--panel:#fff;--text:#14182a;--mute:#566080;--line:#c9d0e2;--acc:#b86e00;--ok:#13805a;--bad:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0e1d;--panel:#131a31;--text:#e8ecf8;--mute:#98a2c4;--line:#2a3558;--acc:#ffb347;--ok:#4fd6a0;--bad:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0e1d;--panel:#131a31;--text:#e8ecf8;--mute:#98a2c4;--line:#2a3558;--acc:#ffb347;--ok:#4fd6a0;--bad:#ff8a80;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+h1{font:700 28px/1.2 Georgia,"Times New Roman",serif;margin:8px 0}
+h2{font:600 19px/1.3 Georgia,serif;margin:0 0 6px}
+p{margin:6px 0;max-width:72ch}.mute{color:var(--mute)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:16px 0}
+canvas{width:100%;height:auto;display:block;border-radius:8px;background:#04060f;margin:8px 0}
+#ms{cursor:crosshair;touch-action:pan-y}
+button,select,input[type=text]{font:inherit;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
+button{cursor:pointer}button.main{background:var(--acc);color:#14100a;border-color:var(--acc);font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+input[type=range]{width:min(520px,100%)}input[type=text]{width:9em}
+.mini{border:1px solid var(--line);border-radius:8px;padding:12px;margin:8px 0}
+.eq{font:600 20px/1.6 Georgia,serif;text-align:center;border:1px solid var(--line);border-radius:8px;padding:10px;margin:10px 0}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+</style></head><body><main>
+<h1>Redshift: reading motion from light</h1>
+<p>The dark lines in a spectrum tell you what an object is made of. They also tell you how fast it is moving. In this lab you will see why moving objects change the colour of their light, learn the redshift equation, and practise using it before you measure real galaxies in the Hubble’s law lab.</p>
+
+<section class="card"><h2>1. Explore: light from a moving source</h2>
+<p class="mute">Drag the slider. A positive speed means the object is moving <b>away</b> from Earth (on the left); a negative speed means it is moving <b>toward</b> Earth. In the waves picture the speeds are exaggerated so you can see the effect.</p>
+<p><label>Speed: <b id="sv"></b> <input id="v" type="range" min="-20000" max="30000" step="500" value="0" aria-label="Speed in kilometres per second"></label></p>
+<canvas id="anim" width="960" height="200" aria-label="Waves from a moving source"></canvas>
+<p id="note" aria-live="polite"></p>
+<p class="mute">Spectrum of calcium absorption lines: the top strip is the laboratory pattern and the bottom strip is the light you observe.</p>
+<canvas id="sp" width="960" height="150" aria-label="Laboratory and observed spectrum"></canvas>
+<div class="mini" id="ro" aria-live="polite"></div></section>
+
+<section class="card"><h2>2. The redshift equation</h2>
+<p>The size of the shift tells you the speed. Redshift z measures how much the wavelength has been stretched, as a fraction of its original value.</p>
+<div class="eq">z = (λ<sub>obs</sub> − λ<sub>lab</sub>) ÷ λ<sub>lab</sub><br>v = z × c</div>
+<p>λ<sub>obs</sub> is the wavelength you observe, λ<sub>lab</sub> is the wavelength measured in a laboratory, and c = 300,000 km/s is the speed of light.</p>
+<div class="mini"><b>Worked example.</b> The calcium line has λ<sub>lab</sub> = 393.4 nm and is observed at 400.0 nm.<br>
+Shift: 400.0 − 393.4 = 6.6 nm<br>z = 6.6 ÷ 393.4 = 0.0168<br>v = 0.0168 × 300,000 ≈ 5,000 km/s, moving away.</div>
+<p class="mute">A positive z is a redshift (moving away). A negative z is a blueshift (moving toward us). This simple equation works well when z is small, below about 0.1.</p></section>
+
+<section class="card"><h2>3. Your turn: measure and calculate</h2>
+<p>A galaxy has a calcium line. In the laboratory it is at 393.4 nm (the ▲ marker). Click the centre of the dark line to measure where you see it, then calculate z and the speed.</p>
+<canvas id="ms" width="960" height="110" aria-label="Galaxy spectrum to measure"></canvas>
+<p class="mute" id="mrd">Move over the spectrum to read a wavelength.</p>
+<p><label>Redshift z: <input type="text" id="zi" inputmode="decimal"></label> &nbsp; <label>Speed (km/s): <input type="text" id="vi" inputmode="decimal"></label></p>
+<p><button class="main" id="chk">Check</button> <button id="ng">New galaxy</button></p>
+<p id="mres" aria-live="polite"></p></section>
+
+<section class="card"><h2>4. Quick check</h2><div id="qs"></div>
+<p><button class="main" id="qc">Check my answers</button></p><div id="qr" aria-live="polite"></div></section>
+
+<section class="card"><h2>Ready for the next step</h2>
+<p>You now know how to turn a shifted line into a speed. In the Hubble’s law lab you will do this for real galaxies and then find out how their speeds depend on distance: <a href="https://claude.ai/artifact/MEn4zF1av3NtuQF3mNYwpb">go to the Hubble’s law lab</a>.</p></section>
+</main>
+<script>
+const $=id=>document.getElementById(id),C=299792,LAB=393.4,LO=360,HI=700,X=l=>(l-LO)/(HI-LO)*960,Lw=x=>LO+x/960*(HI-LO);
+const LINES=[393.4,396.8];
+function wl(l){if(l<380)return"rgb(38,22,58)";let r=0,g=0,b=0;
+ if(l<440){r=(440-l)/60;b=1}else if(l<490){g=(l-440)/50;b=1}else if(l<510){g=1;b=(510-l)/20}else if(l<580){r=(l-510)/70;g=1}else if(l<645){r=1;g=(645-l)/65}else r=1;
+ const k=l<420?.3+.7*(l-380)/40:l>680?.3+.7*(700-l)/20:1;return`rgb(${~~(255*r*k)},${~~(255*g*k)},${~~(255*b*k)})`}
+function strip(c,y,h,ls){for(let x=0;x<960;x++){c.fillStyle=wl(Lw(x));c.fillRect(x,y,1,h)}
+ for(const l0 of ls){const px=Math.round(X(l0));for(let dx=-6;dx<=6;dx++){c.globalAlpha=.95*Math.exp(-((dx/1.8)**2)/2);c.fillStyle="#000";c.fillRect(px+dx,y,1,h)}}c.globalAlpha=1}
+function ruler(c,y){c.fillStyle="#cbd2ea";c.font="11px system-ui";c.textAlign="center";
+ for(let l=360;l<=700;l+=10){const x=X(l);c.fillRect(x,y,1,l%20?5:9);if(l%20==0&&l>360&&l<700)c.fillText(l,x,y+22)}}
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* Section 1 */
+function frame(ms){const c=$("anim").getContext("2d"),t=ms/1000,v=+$("v").value,cw=110,T=.55,vs=v/30000*.75*cw,sx=600,sy=100;
+ c.fillStyle="#04060f";c.fillRect(0,0,960,200);
+ for(let k=0;k<9;k++){const a=t%T+k*T;c.strokeStyle=`rgba(255,226,150,${Math.max(0,1-a/4.6)})`;c.lineWidth=2;c.beginPath();c.arc(sx-vs*a,sy,cw*a,0,7);c.stroke()}
+ c.fillStyle="#ffb347";c.beginPath();c.arc(sx,sy,9,0,7);c.fill();
+ if(v){const d=v>0?1:-1;c.strokeStyle="#ffb347";c.lineWidth=3;c.beginPath();c.moveTo(sx+d*16,sy);c.lineTo(sx+d*46,sy);c.lineTo(sx+d*38,sy-7);c.moveTo(sx+d*46,sy);c.lineTo(sx+d*38,sy+7);c.stroke()}
+ c.fillStyle="#4aa3ff";c.beginPath();c.arc(40,sy,12,0,7);c.fill();c.fillStyle="#cbd2ea";c.font="12px system-ui";c.textAlign="center";c.fillText("Earth (you)",40,sy+30);c.fillText("source",sx,sy+30);
+ if(!reduce)requestAnimationFrame(frame)}
+function upd(){const v=+$("v").value,z=v/C,o=LINES[0]*(1+z),d=o-LINES[0];
+ $("sv").textContent=(v>0?"+":"")+v.toLocaleString()+" km/s";
+ $("note").textContent=v>0?"The source is moving away, so the waves reaching Earth are stretched: the light is redshifted.":v<0?"The source is moving toward us, so the waves reaching Earth are squashed: the light is blueshifted.":"The source is not moving, so the waves are evenly spaced and there is no shift.";
+ const c=$("sp").getContext("2d");c.fillStyle="#04060f";c.fillRect(0,0,960,150);
+ c.fillStyle="#cbd2ea";c.font="12px system-ui";c.textAlign="left";c.fillText("Laboratory (at rest)",6,12);c.fillText("Observed",6,72);
+ strip(c,16,34,LINES);strip(c,76,34,LINES.map(l=>l*(1+z)));ruler(c,114);
+ if(v){c.strokeStyle="#ffb347";c.lineWidth=2;c.beginPath();c.moveTo(X(LINES[0]),55);c.lineTo(X(o),55);c.stroke();
+  c.fillStyle="#ffb347";c.textAlign=X(o)>X(LINES[0])?"left":"right";c.fillText("shift "+(d>0?"+":"")+d.toFixed(1)+" nm",X(o)+(X(o)>X(LINES[0])?6:-6),68)}
+ $("ro").innerHTML=`λ<sub>lab</sub> = ${LINES[0]} nm &nbsp;·&nbsp; λ<sub>obs</sub> = ${o.toFixed(2)} nm &nbsp;·&nbsp; shift = ${d.toFixed(2)} nm<br>z = ${d.toFixed(2)} ÷ ${LINES[0]} = <b>${z.toFixed(4)}</b> &nbsp;·&nbsp; v = z × 299,792 ≈ <b>${Math.round(v).toLocaleString()} km/s</b> ${v>0?"(redshift)":v<0?"(blueshift)":""}`;
+ if(reduce)frame(1500)}
+$("v").oninput=upd;
+
+/* Section 3 */
+let gz=0,mo=null,hv=null,tries=0;
+function drawMs(){const c=$("ms").getContext("2d");c.fillStyle="#04060f";c.fillRect(0,0,960,110);
+ strip(c,0,56,[LAB*(1+gz)]);ruler(c,60);
+ c.fillStyle="#ffb347";const lx=X(LAB);c.beginPath();c.moveTo(lx,57);c.lineTo(lx-6,69);c.lineTo(lx+6,69);c.fill();c.font="12px system-ui";c.textAlign="left";c.fillText("▲ lab 393.4 nm",lx-6,100);
+ if(hv!=null){c.fillStyle="rgba(255,255,255,.7)";c.fillRect(X(hv),0,1,56)}
+ if(mo!=null){c.fillStyle="#fff";c.fillRect(X(mo)-1,0,2,56);c.textAlign="center";c.font="bold 12px system-ui";c.fillText(mo.toFixed(1)+" nm",Math.min(Math.max(X(mo),50),910),100)}}
+function newG(){gz=Math.round((.012+Math.random()*.085)*1e4)/1e4;mo=null;tries=0;$("zi").value="";$("vi").value="";$("mres").textContent="";$("mrd").textContent="Move over the spectrum to read a wavelength.";drawMs()}
+const mp=e=>{const r=$("ms").getBoundingClientRect();return Math.round(Lw((e.clientX-r.left)*960/r.width)*10)/10};
+$("ms").addEventListener("pointermove",e=>{hv=mp(e);$("mrd").textContent="Pointer: "+hv.toFixed(1)+" nm"+(mo!=null?"   ·   Recorded λobs = "+mo.toFixed(1)+" nm":"");drawMs()});
+$("ms").addEventListener("pointerleave",()=>{hv=null;drawMs()});
+$("ms").addEventListener("pointerdown",e=>{mo=mp(e);$("mrd").textContent="Recorded λobs = "+mo.toFixed(1)+" nm";drawMs()});
+$("ng").onclick=newG;
+const num=s=>parseFloat(String(s).replace(/,/g,""));
+$("chk").onclick=()=>{if(mo==null){$("mres").innerHTML='<span class="bad">Click the dark line first to record λobs.</span>';return}
+ const ez=(mo-LAB)/LAB,ev=ez*C,zu=num($("zi").value),vu=num($("vi").value),zok=Math.abs(zu-ez)<=Math.max(.0006,Math.abs(ez)*.03),vok=Math.abs(vu-ev)<=Math.max(300,Math.abs(ev)*.03),err=Math.abs(mo-LAB*(1+gz));
+ tries++;let h=err<1.5?'<span class="ok">Good measurement: you found the line centre.</span>':'<span class="bad">Your measurement is '+err.toFixed(1)+' nm from the line centre. Try again, placing the pointer in the middle of the dark line.</span>';
+ h+="<br>"+(isNaN(zu)?"Enter your value of z.":zok?'<span class="ok">z is correct.</span>':'<span class="bad">z is not right.</span> Remember z = (λobs − λlab) ÷ λlab.');
+ h+="<br>"+(isNaN(vu)?"Enter the speed.":vok?'<span class="ok">Speed is correct.</span>':'<span class="bad">Speed is not right.</span> Remember v = z × 300,000 km/s.');
+ if((!zok||!vok)&&tries>=2)h+=`<br>For your measurement: z = ${ez.toFixed(4)} and v ≈ ${Math.round(ev).toLocaleString()} km/s.`;
+ $("mres").innerHTML=h};
+
+/* Section 4 */
+const Q=[["Light from a galaxy is shifted toward longer wavelengths (red). What does this tell you?",["It is moving toward us","It is moving away from us","It is not moving"],1],
+["Galaxy A has z = 0.02 and galaxy B has z = 0.08. Which is moving faster?",["Galaxy A","Galaxy B","They are the same"],1],
+["A line with a lab wavelength of 500 nm is observed at 505 nm. What is z?",["0.01","0.05","0.1"],0],
+["A galaxy has z = 0.01. What is its speed?",["300 km/s","3,000 km/s","30,000 km/s"],1]];
+$("qs").innerHTML=Q.map((q,i)=>`<div class="mini"><b>${i+1}.</b> ${q[0]}<br><select id="q${i}" aria-label="Question ${i+1}"><option value="">choose…</option>${q[1].map((o,j)=>`<option value="${j}">${o}</option>`).join("")}</select></div>`).join("");
+$("qc").onclick=()=>{let n=0;$("qr").innerHTML=Q.map((q,i)=>{const v=$("q"+i).value,ok=v!==""&&+v==q[2];n+=ok;return`<p>${i+1}. ${v===""?"Not answered.":ok?'<span class="ok">Correct.</span>':'<span class="bad">Not quite.</span>'}</p>`}).join("")+`<p><b>Score: ${n} out of ${Q.length}</b></p>`};
+upd();newG();if(!reduce)requestAnimationFrame(frame);
+</script></body></html>
