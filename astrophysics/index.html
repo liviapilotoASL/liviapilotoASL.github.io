@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reading the spectra of stars</title>
+<style>
+:root{--bg:#eef1f7;--panel:#fff;--text:#14182a;--mute:#566080;--line:#c9d0e2;--acc:#b86e00;--ok:#13805a;--bad:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0e1d;--panel:#131a31;--text:#e8ecf8;--mute:#98a2c4;--line:#2a3558;--acc:#ffb347;--ok:#4fd6a0;--bad:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0e1d;--panel:#131a31;--text:#e8ecf8;--mute:#98a2c4;--line:#2a3558;--acc:#ffb347;--ok:#4fd6a0;--bad:#ff8a80;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+h1{font:700 28px/1.2 Georgia,"Times New Roman",serif;margin:8px 0}
+h2{font:600 19px/1.3 Georgia,serif;margin:0 0 6px}
+p{margin:6px 0;max-width:72ch}.mute{color:var(--mute)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:16px 0}
+canvas{width:100%;height:auto;display:block;border-radius:8px;background:#04060f}
+#lab{touch-action:pan-y;cursor:crosshair}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button,select{font:inherit;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}
+button[aria-pressed="true"]{background:var(--acc);color:#14100a;border-color:var(--acc);font-weight:600}
+button.main{background:var(--acc);color:#14100a;border-color:var(--acc);font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.mini{border:1px solid var(--line);border-radius:8px;padding:12px}
+.mini b{display:block;margin-bottom:4px}
+label.ck{display:inline-flex;gap:6px;align-items:center;margin:4px 14px 4px 0}
+#res .ok{color:var(--ok);font-weight:600}#res .bad{color:var(--bad);font-weight:600}
+input[type=range]{width:min(420px,100%)}
+</style></head><body><main>
+<h1>Reading the spectra of stars</h1>
+<p>Starlight carries a hidden message. When it passes through the gas in a star’s atmosphere, some colours are absorbed, leaving dark lines. Each element absorbs at its own wavelengths, like a barcode. In this lab you will learn the barcodes, then use them to find out what stars are made of and how hot they are. It is also good practice for reading spectra before the redshift lab.</p>
+
+<section class="card"><h2>1. Every element has its own barcode</h2>
+<p class="mute">Choose one or more elements. The top strip is white light (a continuous spectrum). The middle strip is the element glowing when it is hot, and the bottom strip is the same element absorbing light from a hotter source behind it. Notice that the dark lines are in exactly the same places as the bright ones.</p>
+<div class="bar" id="chips" role="group" aria-label="Elements"></div>
+<canvas id="exp" width="960" height="216" aria-label="Continuous, emission and absorption spectra"></canvas>
+<p class="mute" id="wls"></p></section>
+
+<section class="card"><h2>2. Compare star spectra</h2>
+<p class="mute">Pick a star. Move your pointer (or finger) across the spectra: a white guide line shows the wavelength in nm and highlights matching lines in the element strips underneath. The wavelength is in nanometres (nm); violet is about 400 nm and red about 700 nm.</p>
+<div class="bar" id="stars" role="group" aria-label="Stars"></div>
+<canvas id="lab" width="960" height="300" aria-label="Star spectrum above reference spectra of six elements"></canvas>
+<p id="rd" class="mute" aria-live="polite">Move over the spectrum to read a wavelength.</p>
+<div class="mini" id="info"></div>
+</section>
+
+<section class="card"><h2>3. Challenge: the mystery star</h2>
+<p class="mute">Choose Mystery star above (or press the button below). Look at its spectrum, then tick the elements you think are in its atmosphere and pick its class. Very faint lines do not count either way.</p>
+<div id="cks"></div>
+<p><label>Spectral class: <select id="cls"><option value="">choose…</option><option>O</option><option>B</option><option>A</option><option>F</option><option>G</option><option>K</option><option>M</option><option value="WD">White dwarf</option></select></label></p>
+<p><button class="main" id="chk">Check my answer</button> <button id="nw">New mystery star</button></p>
+<p id="res" aria-live="polite"></p></section>
+
+<section class="card"><h2>4. Where do the elements come from?</h2>
+<div class="grid">
+<div class="mini"><b>The Big Bang</b>Almost all the hydrogen and helium in the universe was made in the first few minutes, about 13.8 billion years ago. The very first stars were made of almost nothing else.</div>
+<div class="mini"><b>Stars are element factories</b>In the core, fusion turns hydrogen into helium. In massive stars, fusion builds heavier elements such as carbon, oxygen and magnesium, up to iron, where the process stops releasing energy.</div>
+<div class="mini"><b>Supernovae spread them</b>Elements heavier than iron are made in exploding stars and in colliding neutron stars. The explosions scatter everything into space, where new stars form. The iron and calcium in the Sun’s spectrum were made by earlier stars.</div>
+</div>
+<p><b>Why do the star classes look so different?</b> Most stars are mostly hydrogen. The class (O, B, A, F, G, K, M) depends mainly on the star’s <i>temperature</i>, which controls which atoms can absorb light. Very hot stars strip electrons off atoms, and very cool stars have too little energy to excite hydrogen, so its lines are weak.</p>
+<p><b>Ready for the next step?</b> Try the redshift lab, where you will see how the motion of a star or galaxy shifts its spectrum: <a href="https://claude.ai/artifact/VGZ8tyvSt73WAL62CjwWnT">go to the redshift lab</a>.</p></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const EL={H:{n:"Hydrogen",L:[410.2,434.0,486.1,656.3]},He:{n:"Helium",L:[447.1,501.6,587.6,667.8]},Na:{n:"Sodium",L:[589.0,589.6]},Ca:{n:"Calcium",L:[393.4,396.8,422.7,616.2]},Mg:{n:"Magnesium",L:[383.8,517.3,518.4]},Fe:{n:"Iron",L:[404.6,430.8,438.4,495.8,527.0,532.8]}};
+const K=Object.keys(EL);
+const ST=[
+{n:"Mintaka",cls:"O",sp:"O9.5",T:30000,c:"blue",l:{He:.8,H:.3},t:"Extremely hot: most atoms lose their electrons, so only helium and a little hydrogen are left to absorb."},
+{n:"Rigel",cls:"B",sp:"B8",T:12000,c:"blue-white",l:{He:.5,H:.5,Mg:.2},t:"Hot: helium lines are strong and hydrogen lines are getting stronger."},
+{n:"Sirius A",cls:"A",sp:"A1",T:9900,c:"white",l:{H:.9,Ca:.2,Mg:.25,Fe:.15},t:"Hydrogen lines are at their strongest in stars at about 10,000 K."},
+{n:"Procyon",cls:"F",sp:"F5",T:6500,c:"yellow-white",l:{H:.6,Ca:.5,Fe:.45,Mg:.3},t:"Hydrogen weakens and metal lines such as calcium and iron appear."},
+{n:"The Sun",cls:"G",sp:"G2",T:5800,c:"yellow",l:{H:.35,Ca:.9,Fe:.7,Mg:.6,Na:.5},t:"Strong calcium lines at 393.4 and 396.8 nm, plus iron, magnesium and the sodium doublet."},
+{n:"Arcturus",cls:"K",sp:"K1",T:4300,c:"orange",l:{Ca:.9,Fe:.8,Mg:.7,Na:.8,H:.15},t:"Cooler: metal lines are strong and hydrogen lines are very faint."},
+{n:"Betelgeuse",cls:"M",sp:"M2",T:3500,c:"red",l:{Ca:.8,Fe:.75,Mg:.6,Na:.9},t:"Coolest class. Molecules such as titanium oxide also form here, adding broad bands that are not drawn in this lab."},
+{n:"Sirius B",cls:"WD",sp:"white dwarf",T:25000,c:"blue-white",w:1,l:{H:.9},t:"The dense, hot core left behind by a star. Its surface is almost pure hydrogen and high pressure smears the lines wide."}];
+const LM=76,PW=884,X=l=>LM+(l-380)/320*PW,Lw=x=>380+(x-LM)/PW*320;
+function wl(l,f=1){let r=0,g=0,b=0;
+ if(l<440){r=(440-l)/60;b=1}else if(l<490){g=(l-440)/50;b=1}else if(l<510){g=1;b=(510-l)/20}else if(l<580){r=(l-510)/70;g=1}else if(l<645){r=1;g=(645-l)/65}else r=1;
+ const k=f*(l<420?.3+.7*(l-380)/40:l>680?.3+.7*(700-l)/20:1);
+ return`rgb(${~~(255*r*k)},${~~(255*g*k)},${~~(255*b*k)})`}
+const BM={};
+function bm(T){if(BM[T])return BM[T];const a=[];let m=0;
+ for(let x=0;x<PW;x++){const l=Lw(LM+x),v=1/(Math.pow(l,5)*(Math.exp(14388000/(l*T))-1));a.push(v);m=Math.max(m,v)}
+ return BM[T]=a.map(v=>.22+.78*v/m)}
+function strip(c,y,h,mode,lines,T,z){
+ const b=T?bm(T):null;
+ for(let x=0;x<PW;x++){c.fillStyle=mode=="em"?"#000":wl(Lw(LM+x),b?Math.pow(b[x],.8):1);c.fillRect(LM+x,y,1,h)}
+ for(const[l0,d,w]of lines){const px=Math.round(X(l0*(1+z))),r=Math.ceil(w*3);
+  for(let dx=-r;dx<=r;dx++){const xx=px+dx;if(xx<LM||xx>=LM+PW)continue;
+   c.globalAlpha=d*Math.exp(-((dx/w)**2)/2);c.fillStyle=mode=="em"?wl(l0):"#000";c.fillRect(xx,y,1,h)}}
+ c.globalAlpha=1}
+function lines(m,wide){const o=[];for(const k of K){const s=m[k];if(!s)continue;EL[k].L.forEach((l,i)=>o.push([l,Math.min(.95,s*.95)*(1-.08*(i%3)),wide?5:1.3]))}return o}
+function lab(c,t,x,y,f="11px system-ui",col="#cbd2ea"){c.fillStyle=col;c.font=f;c.textAlign="left";c.fillText(t,x,y)}
+
+/* Section 1 */
+let sel=new Set(["H"]);
+$("chips").innerHTML=K.map(k=>`<button data-k="${k}" aria-pressed="${k=="H"}">${k} · ${EL[k].n}</button>`).join("");
+$("chips").onclick=e=>{const k=e.target.dataset.k;if(!k)return;sel.has(k)?sel.delete(k):sel.add(k);if(!sel.size)sel.add(k);
+ [...$("chips").children].forEach(b=>b.setAttribute("aria-pressed",sel.has(b.dataset.k)));drawExp()};
+function drawExp(){const c=$("exp").getContext("2d"),m={};sel.forEach(k=>m[k]=1);const ln=lines(m,0).map(a=>[a[0],.95,a[2]]);
+ c.fillStyle="#04060f";c.fillRect(0,0,960,216);
+ [["Continuous","cont"],["Emission","em"],["Absorption","abs"]].forEach(([t,md],i)=>{const y=8+i*68;strip(c,y,44,md,md=="cont"?[]:ln,0,0);lab(c,t,4,y+27,"12px system-ui")});
+ c.fillStyle="#cbd2ea";c.textAlign="center";for(let l=380;l<=700;l+=20){c.fillRect(X(l),210,1,6)}
+ $("wls").textContent=[...sel].map(k=>EL[k].n+": "+EL[k].L.join(", ")+" nm").join("   ·   ")}
+
+/* Section 2 */
+let cur=4,mys=0,rev=false,hx=null,z=0;
+const base=document.createElement("canvas");base.width=960;base.height=300;
+const star=()=>cur=="M"?ST[mys]:ST[cur];
+$("stars").innerHTML=ST.map((s,i)=>`<button data-i="${i}">${s.n}</button>`).join("")+`<button data-i="M">? Mystery star</button>`;
+$("stars").onclick=e=>{const i=e.target.dataset.i;if(i==null)return;pick(i=="M"?"M":+i)};
+function pick(i){cur=i;if(i=="M"&&rev)newMys();upd()}
+function drawBase(){const c=base.getContext("2d"),s=star();c.fillStyle="#04060f";c.fillRect(0,0,960,300);
+ strip(c,0,64,"abs",lines(s.l,s.w),s.T,z);lab(c,cur=="M"&&!rev?"Mystery":s.n,4,36,"12px system-ui");
+ c.fillStyle="#cbd2ea";c.textAlign="center";c.font="11px system-ui";
+ for(let l=380;l<=700;l+=10){const x=X(l);c.fillRect(x,66,1,l%20?5:9);if(l%20==0&&l<700)c.fillText(l,x,88)}
+ K.forEach((k,i)=>{const y=104+i*32;strip(c,y,26,"abs",lines({[k]:1},0),0,0);lab(c,EL[k].n,4,y+17)})}
+function draw(){const c=$("lab").getContext("2d");c.drawImage(base,0,0);
+ if(hx==null)return;const lw=Lw(hx);c.fillStyle="#fff";c.fillRect(hx,0,1,296);
+ let best=null;K.forEach((k,i)=>EL[k].L.forEach(l=>{const d=Math.abs(l-lw);if(!best||d<best.d)best={d,l,k};
+  if(d<2){c.strokeStyle="#ffb347";c.lineWidth=2;c.strokeRect(X(l)-5,103+i*32,10,28)}}));
+ $("rd").textContent=lw.toFixed(1)+" nm. Nearest reference line: "+EL[best.k].n+" "+best.l+" nm ("+best.d.toFixed(1)+" nm away)."}
+const lp=e=>{const r=$("lab").getBoundingClientRect();hx=Math.min(960,Math.max(LM,(e.clientX-r.left)*960/r.width));draw()};
+$("lab").addEventListener("pointermove",lp);$("lab").addEventListener("pointerdown",lp);
+$("lab").addEventListener("pointerleave",()=>{hx=null;draw()});
+function upd(){[...$("stars").children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.i==String(cur)));
+ const s=star(),hid=cur=="M"&&!rev;
+ $("info").innerHTML=hid?"<b>Mystery star</b>Use the lines to work out its elements and class, then check your answer in the challenge below.":`<b>${s.n}: class ${s.cls} (${s.sp}), ${s.T.toLocaleString()} K, ${s.c}</b>${s.t}`;
+ drawBase();draw()}
+
+/* Section 3 */
+$("cks").innerHTML=K.map(k=>`<label class="ck"><input type="checkbox" id="c_${k}"> ${EL[k].n}</label>`).join("");
+function newMys(){let m;do{m=Math.floor(Math.random()*ST.length)}while(m==mys);mys=m;rev=false;
+ K.forEach(k=>$("c_"+k).checked=false);$("cls").value="";$("res").textContent=""}
+$("nw").onclick=()=>{newMys();pick("M")};
+$("chk").onclick=()=>{if(cur!="M")pick("M");const s=ST[mys],need=K.filter(k=>(s.l[k]||0)>=.3),opt=K.filter(k=>s.l[k]&&s.l[k]<.3),
+ got=K.filter(k=>$("c_"+k).checked),miss=need.filter(k=>!got.includes(k)),extra=got.filter(k=>!need.includes(k)&&!opt.includes(k)),
+ ok=!miss.length&&!extra.length,cOK=$("cls").value==s.cls,nm=a=>a.map(k=>EL[k].n).join(", ");
+ let h=ok?'<span class="ok">Elements: correct.</span>':'<span class="bad">Elements: not quite.</span>'+(miss.length?" Missing: "+nm(miss)+".":"")+(extra.length?" Not present: "+nm(extra)+".":"");
+ h+="<br>"+(!$("cls").value?"You have not chosen a class.":cOK?'<span class="ok">Class: correct.</span>':'<span class="bad">Class: not quite.</span>');
+ h+=`<br>It was <b>${s.n}</b>, class ${s.cls}, ${s.T.toLocaleString()} K. ${s.t}`;
+ $("res").innerHTML=h;rev=true;upd()};
+newMys();drawExp();upd();
+</script></body></html>
