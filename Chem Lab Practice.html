@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chem Lab Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eaf2f0;--card:#fff;--ink:#14213d;--mute:#51607a;--line:#c9d8d5;--accent:#0f7f82;--accent-ink:#fff;--good:#1b7a3d;--goodbg:#dff3e6;--bad:#b3261e;--badbg:#fbe3e1;--hi:#f2a541;
+--metal:#cfe3f7;--nonmetal:#d9f0d3;--metalloid:#f6e3b4;--noble:#e5d6f3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1a1f;--card:#17262d;--ink:#e8f1ef;--mute:#9fb3b8;--line:#2c4048;--accent:#4fc3c6;--accent-ink:#06191a;--good:#7be0a0;--goodbg:#173a26;--bad:#ff9a92;--badbg:#42201e;--metal:#223e5c;--nonmetal:#244a2c;--metalloid:#58491f;--noble:#3d2c58}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1a1f;--card:#17262d;--ink:#e8f1ef;--mute:#9fb3b8;--line:#2c4048;--accent:#4fc3c6;--accent-ink:#06191a;--good:#7be0a0;--goodbg:#173a26;--bad:#ff9a92;--badbg:#42201e;--metal:#223e5c;--nonmetal:#244a2c;--metalloid:#58491f;--noble:#3d2c58}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Source Sans 3",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque","Source Sans 3",system-ui,sans-serif;line-height:1.15;margin:0}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+header{padding:12px 0 18px}
+header h1{font-size:clamp(28px,5vw,44px);font-weight:800}
+header p{margin:6px 0 0;color:var(--mute);max-width:60ch}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+nav button{font:inherit;font-weight:600;border:2px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;cursor:pointer}
+nav button[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+nav button .s{font-weight:400;opacity:.8;margin-left:6px}
+button:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+section.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px}
+h2{font-size:26px;margin-bottom:10px}
+h3{font-size:20px;margin-bottom:8px}
+ul.notes{margin:0;padding-left:20px}ul.notes li{margin:6px 0;max-width:70ch}
+.tbl-wrap{overflow-x:auto}
+.modes{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.modes button,.chips button,.btn{font:inherit;font-weight:600;border:2px solid var(--line);background:transparent;color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer}
+.modes button[aria-pressed="true"],.chips button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.btn{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#pt{display:grid;grid-template-columns:repeat(18,minmax(38px,1fr));gap:3px;min-width:760px}
+#pt button{aspect-ratio:1;border:1px solid var(--line);border-radius:5px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;color:#14213d;padding:0;line-height:1.1}
+#pt button small{display:block;font-size:9px;font-weight:400}
+#pt button[aria-pressed="true"]{outline:3px solid var(--hi);outline-offset:1px}
+:root[data-theme="dark"] #pt button{color:#e8f1ef}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) #pt button{color:#e8f1ef}}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--mute);margin:8px 0}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:4px;border:1px solid var(--line)}
+#info{margin-top:10px;padding:12px;border-radius:10px;border:1px dashed var(--line);min-height:70px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.q{border-top:1px solid var(--line);padding:16px 0}
+.q:first-of-type{border-top:0}
+.q p{margin:0 0 10px;font-weight:600}
+.opts{display:grid;gap:8px}
+.opt{font:inherit;text-align:left;border:2px solid var(--line);background:transparent;color:var(--ink);padding:10px 12px;border-radius:10px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--goodbg);border-color:var(--good)}
+.opt.wrong{background:var(--badbg);border-color:var(--bad)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.why{margin-top:8px;font-size:16px;color:var(--mute)}
+.score{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:22px;font-weight:800;margin-top:12px}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.out{font-size:20px;font-weight:600;margin-top:10px}
+@media(prefers-reduced-motion:no-preference){.opt{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Chem Lab Practice</h1>
+<p>Pick a topic, read the quick notes, try the interactive, then test yourself. Wrong answers explain why, so read them.</p>
+</header>
+<nav id="nav" aria-label="Topics"></nav>
+<main id="main"></main>
+</div>
+
+<script>
+// ---------- Data ----------
+const EL=`H,Hydrogen,2.20,53,n|He,Helium,,31,g|Li,Lithium,0.98,167,m|Be,Beryllium,1.57,112,m|B,Boron,2.04,87,l|C,Carbon,2.55,67,n|N,Nitrogen,3.04,56,n|O,Oxygen,3.44,48,n|F,Fluorine,3.98,42,n|Ne,Neon,,38,g|Na,Sodium,0.93,190,m|Mg,Magnesium,1.31,145,m|Al,Aluminum,1.61,118,m|Si,Silicon,1.90,111,l|P,Phosphorus,2.19,98,n|S,Sulfur,2.58,88,n|Cl,Chlorine,3.16,79,n|Ar,Argon,,71,g|K,Potassium,0.82,243,m|Ca,Calcium,1.00,194,m|Sc,Scandium,1.36,184,m|Ti,Titanium,1.54,176,m|V,Vanadium,1.63,171,m|Cr,Chromium,1.66,166,m|Mn,Manganese,1.55,161,m|Fe,Iron,1.83,156,m|Co,Cobalt,1.88,152,m|Ni,Nickel,1.91,149,m|Cu,Copper,1.90,145,m|Zn,Zinc,1.65,142,m|Ga,Gallium,1.81,136,m|Ge,Germanium,2.01,125,l|As,Arsenic,2.18,114,l|Se,Selenium,2.55,103,n|Br,Bromine,2.96,94,n|Kr,Krypton,3.00,88,g`
+.split('|').map((s,i)=>{const [sym,name,en,r,c]=s.split(',');const z=i+1;
+ let p,g;if(z<=2){p=1;g=z==1?1:18}else if(z<=10){p=2;g=z<=4?z-2:z+8}else if(z<=18){p=3;g=z<=12?z-10:z}else{p=4;g=z-18}
+ return{sym,name,z,en:en?+en:null,r:+r,c,p,g}});
+const CAT={m:'Metal',n:'Nonmetal',l:'Metalloid',g:'Noble gas'};
+const CATVAR={m:'--metal',n:'--nonmetal',l:'--metalloid',g:'--noble'};
+const val=e=>e.g<=2?e.g:(e.g>=13?e.g-10:null);
+
+const TOPICS=[
+{id:'basics',name:'Periodic Table Basics',explorer:'cat',notes:[
+ 'The <b>atomic number</b> is the number of protons. It is what makes an element that element.',
+ 'Rows are <b>periods</b>. Columns are <b>groups</b> (families). Elements in a group act alike because they have the same number of <b>valence electrons</b>.',
+ 'Metals are on the left and middle, nonmetals on the right, and metalloids (B, Si, Ge, As) sit along the staircase between them.',
+ 'Group 18 are the <b>noble gases</b>. Their outer shells are full, so they rarely react.'],
+ qs:[
+ ['What do elements in the same group have in common?','The same number of valence electrons',['The same atomic mass','The same number of neutrons','The same number of protons'],'Valence electrons decide how an atom reacts, so a group acts like a family.'],
+ ['The atomic number of an element equals its number of…','Protons',['Neutrons','Valence electrons only','Energy levels'],'Protons define the element. Change the protons and you change the element.'],
+ ['Which of these is a noble gas?','Neon',['Sodium','Chlorine','Oxygen'],'Neon is in Group 18 with a full outer shell.'],
+ ['Horizontal rows of the periodic table are called…','Periods',['Groups','Families','Octets'],'Rows are periods. Columns are groups or families.'],
+ ['Which element is a metalloid?','Silicon',['Sodium','Sulfur','Argon'],'Silicon sits on the staircase and has properties of both metals and nonmetals.'],
+ ['Which element is in Group 2, Period 3?','Magnesium',['Sodium','Calcium','Beryllium'],'Period 3 is the third row. Group 2 is the second column, which gives Mg.'],
+ ['Which of these elements is a metal?','Magnesium',['Oxygen','Nitrogen','Neon'],'Magnesium is on the left side of the table. Metals are shiny and conduct electricity.'],
+ ['Which group contains the halogens?','Group 17',['Group 1','Group 2','Group 18'],'Fluorine, chlorine, and bromine are all in Group 17.'],
+ ['Group 1 elements (except hydrogen) are called…','Alkali metals',['Halogens','Noble gases','Metalloids'],'Alkali metals such as Li, Na, and K are very reactive.'],
+ ['The modern periodic table is arranged by increasing…','Atomic number',['Atomic radius','Number of neutrons','Alphabetical order'],'Elements are ordered by number of protons.'],
+ ['Which property is typical of nonmetals?','Poor conductors of electricity',['Shiny and malleable','Good conductors of heat','Tend to lose electrons'],'Nonmetals are usually dull and poor conductors, and they tend to gain electrons.'],
+ ['Which element has 6 protons?','Carbon',['Oxygen','Boron','Nitrogen'],'Atomic number 6 is carbon.']]},
+{id:'trends',name:'Periodic Trends',explorer:'r',widget:'trends',notes:[
+ '<b>Atomic radius</b> (size) gets <b>smaller</b> left to right across a period. More protons pull the same energy level in tighter.',
+ 'Atomic radius gets <b>larger</b> going down a group. Each row adds an energy level.',
+ '<b>Electronegativity</b> is how strongly an atom pulls on shared electrons. It rises left to right and falls going down. Fluorine is highest.',
+ '<b>Ionization energy</b> is the energy needed to remove an electron. It follows the same pattern as electronegativity.'],
+ qs:[
+ ['Across a period from left to right, atomic radius…','Decreases',['Increases','Stays the same','Doubles'],'More protons pull the electrons in closer, so atoms shrink.'],
+ ['Going down a group, atomic radius…','Increases',['Decreases','Stays the same','Disappears'],'Each new row adds an energy level, so atoms get bigger.'],
+ ['Which element has the highest electronegativity?','Fluorine',['Oxygen','Chlorine','Sodium'],'Fluorine is small and just one electron short of a full shell, so it pulls hardest.'],
+ ['Which atom is larger, Na or Cl?','Na',['Cl','They are the same size','Cannot be determined'],'Na and Cl are both in Period 3. Na is on the left, so it has fewer protons pulling in and is larger.'],
+ ['Ionization energy is the energy needed to…','Remove an electron from an atom',['Add a proton to an atom','Break a molecule apart','Add a neutron to an atom'],'Low ionization energy means the atom gives up electrons easily.'],
+ ['Which atom loses an electron most easily?','Potassium',['Sodium','Lithium','Fluorine'],'K is the biggest of these, so its outer electron is far from the nucleus and easy to remove.'],
+ ['Which atom is smallest?','Fluorine',['Lithium','Sodium','Potassium'],'Fluorine is at the top right: few energy levels and many protons pulling in.'],
+ ['Why does atomic radius increase going down a group?','More energy levels are added',['More protons pull electrons closer','Electrons are removed','Neutrons get lighter'],'Each new row adds an energy level, so the outer electrons sit farther out.'],
+ ['Which element has the lowest electronegativity?','Potassium',['Fluorine','Oxygen','Chlorine'],'Potassium is large and has one loosely held outer electron, so it barely pulls on shared electrons.'],
+ ['Which atom needs the most energy to remove an electron?','Neon',['Lithium','Sodium','Potassium'],'Neon has a full outer shell and holds its electrons tightly.'],
+ ['Moving left to right across a period, electronegativity generally…','Increases',['Decreases','Stays the same','Disappears'],'More protons pull shared electrons harder.'],
+ ['Which atom is larger, Mg or Ca?','Ca',['Mg','They are the same size','Cannot be determined'],'Calcium is one row lower in Group 2, so it has an extra energy level.']]},
+{id:'lewis',name:'Lewis Dot Structures',widget:'lewis',notes:[
+ 'A <b>Lewis dot structure</b> shows only the <b>valence electrons</b> as dots around the element symbol.',
+ 'Put one dot on each of the four sides first, then pair them up.',
+ 'The <b>octet rule</b>: atoms are stable with 8 valence electrons. Hydrogen and helium are stable with 2.',
+ 'For main-group elements, the group number (1, 2, 13–18) tells you the valence electrons: Group 1 has 1, Group 2 has 2, and Groups 13–18 have the group number minus 10.'],
+ qs:[
+ ['How many dots does oxygen have in its Lewis structure?','6',['2','4','8'],'Oxygen is in Group 16, so 16 − 10 = 6 valence electrons.'],
+ ['How many valence electrons does carbon have?','4',['2','6','14'],'Carbon is in Group 14, so it has 4 valence electrons.'],
+ ['Group 1 elements have how many valence electrons?','1',['2','8','It depends on the element'],'Every Group 1 element has exactly 1 valence electron.'],
+ ['The octet rule says atoms are most stable with…','8 valence electrons',['8 protons','8 neutrons','8 energy levels'],'A full outer shell of 8 valence electrons is the stable arrangement.'],
+ ['Helium is stable with only…','2 valence electrons',['8 valence electrons','4 valence electrons','0 valence electrons'],'Helium has just one energy level, which holds 2 electrons.'],
+ ['Chlorine has 7 dots. How many more electrons does it need for an octet?','1',['7','8','2'],'8 − 7 = 1. That is why Cl easily becomes Cl⁻.'],
+ ['How many valence electrons does nitrogen have?','5',['3','7','2'],'Nitrogen is in Group 15, so 15 − 10 = 5.'],
+ ['Which element has 2 dots in its Lewis structure?','Magnesium',['Sodium','Aluminum','Carbon'],'Magnesium is in Group 2.'],
+ ['What do the dots in a Lewis structure represent?','Valence electrons',['Protons','Neutrons','All electrons in the atom'],'Only the outer (valence) electrons are drawn.'],
+ ['How many dots does neon have?','8',['2','6','10'],'Neon is in Group 18 with a full octet. Helium is the exception with 2.'],
+ ['Which atom most easily loses 1 electron to reach an octet?','Sodium',['Oxygen','Chlorine','Argon'],'Sodium has just 1 valence electron, so losing it leaves a full shell beneath.'],
+ ['Why do atoms gain, lose, or share electrons?','To get a full outer shell',['To gain more neutrons','To become radioactive','To change into another element'],'A full valence shell is a stable arrangement.']]},
+{id:'ionic',name:'Ions & Ionic Bonding',widget:'ionic',notes:[
+ 'Atoms become <b>ions</b> by gaining or losing electrons. Losing electrons makes a positive <b>cation</b>. Gaining electrons makes a negative <b>anion</b>.',
+ 'Metals tend to <b>lose</b> electrons. Nonmetals tend to <b>gain</b> electrons.',
+ 'An <b>ionic bond</b> is the attraction between oppositely charged ions after electrons are <b>transferred</b> from a metal to a nonmetal.',
+ 'Ionic compounds are neutral overall, so the charges must add to zero. Ionic solids have high melting points and conduct electricity when melted or dissolved.'],
+ qs:[
+ ['A magnesium atom (Group 2) forms which ion?','Mg²⁺',['Mg²⁻','Mg⁺','Mg⁶⁻'],'Mg loses its 2 valence electrons, leaving 2 more protons than electrons.'],
+ ['Ionic bonds usually form between…','A metal and a nonmetal',['Two nonmetals','Two metals','Two noble gases'],'The metal gives electrons to the nonmetal.'],
+ ['What is an anion?','A negative ion',['A positive ion','A neutral atom','An ion with no electrons'],'Anions gain electrons, so they have a negative charge.'],
+ ['What is the formula for calcium chloride?','CaCl₂',['CaCl','Ca₂Cl','CaCl₃'],'Ca²⁺ needs two Cl⁻ ions to balance the charge.'],
+ ['Which property do ionic compounds usually have?','High melting point',['Low melting point','Always a gas at room temperature','Conduct electricity as solids'],'Strong attractions between ions take a lot of energy to break.'],
+ ['A chlorine atom gains one electron. Its charge becomes…','1−',['1+','2−','0'],'An extra electron makes it negative: Cl⁻.'],
+ ['What is the formula for sodium chloride?','NaCl',['Na₂Cl','NaCl₂','Na₂Cl₂'],'Na⁺ and Cl⁻ balance one to one.'],
+ ['What is the formula for magnesium oxide?','MgO',['Mg₂O','MgO₂','Mg₂O₂'],'Mg²⁺ and O²⁻ balance one to one.'],
+ ['A sodium atom loses one electron. Its charge becomes…','1+',['1−','2+','0'],'It now has one more proton than electrons, so it is positive.'],
+ ['What is a cation?','A positive ion',['A negative ion','A neutral atom','A molecule'],'Cations form when atoms lose electrons. Metals usually form cations.'],
+ ['Which atom is most likely to form a 2− ion?','Oxygen',['Sodium','Magnesium','Neon'],'Oxygen has 6 valence electrons and gains 2 to reach an octet.'],
+ ['Why do ionic compounds have no overall charge?','Total positive charge equals total negative charge',['Electrons are shared equally','Neutrons cancel the charge','All the ions are neutral'],'The charges balance, like Ca²⁺ with two Cl⁻.']]},
+{id:'covalent',name:'Covalent Bonding',widget:'covalent',notes:[
+ 'A <b>covalent bond</b> forms when two <b>nonmetal</b> atoms <b>share</b> electrons so each can reach an octet.',
+ 'A single bond shares 2 electrons, a double bond shares 4, and a triple bond shares 6.',
+ 'If the atoms share equally (same electronegativity, like Cl₂), the bond is <b>nonpolar</b>. If one atom pulls harder (like H–F), the bond is <b>polar</b> and that atom gets a partial negative charge (δ⁻).',
+ 'Typical bond counts: H forms 1, O forms 2, N forms 3, C forms 4.'],
+ qs:[
+ ['In a covalent bond, electrons are…','Shared between atoms',['Transferred from one atom to the other','Destroyed','Moved into the nucleus'],'Covalent bonds are about sharing. Ionic bonds are about transfer.'],
+ ['How many electrons are shared in a double bond?','4',['2','3','6'],'Each bond is a pair of electrons, and a double bond has two pairs.'],
+ ['Which compound is covalent?','CO₂',['NaCl','MgO','KBr'],'Carbon and oxygen are both nonmetals, so they share electrons.'],
+ ['A bond between two identical atoms, like Cl–Cl, is…','Nonpolar covalent',['Polar covalent','Ionic','Metallic'],'Identical atoms pull equally, so the electrons are shared equally.'],
+ ['In an H–F bond, which atom has the partial negative charge?','F',['H','Both equally','Neither'],'Fluorine has much higher electronegativity, so shared electrons spend more time near it.'],
+ ['How many covalent bonds does a nitrogen atom usually form?','3',['1','2','4'],'Nitrogen has 5 valence electrons and needs 3 more for an octet.'],
+ ['Which pair of elements is most likely to form a covalent bond?','Carbon and oxygen',['Sodium and chlorine','Potassium and fluorine','Magnesium and oxygen'],'Both are nonmetals, so they share electrons.'],
+ ['How many electrons are shared in a molecule of N₂?','6',['2','4','10'],'N₂ has a triple bond: three shared pairs.'],
+ ['How many covalent bonds does carbon usually form?','4',['1','2','6'],'Carbon has 4 valence electrons and needs 4 more for an octet.'],
+ ['Which atom in H₂O has the partial negative charge?','Oxygen',['Hydrogen','Both equally','Neither'],'Oxygen pulls shared electrons harder than hydrogen does.'],
+ ['Lone pairs are…','Valence electrons not used in bonding',['Electrons shared between two atoms','Protons in the nucleus','Electrons transferred to another atom'],'Lone pairs stay on one atom.'],
+ ['Compared with a single bond, a double bond is…','Stronger and shorter',['Weaker and longer','Weaker and shorter','Always ionic'],'More shared electrons hold the atoms closer and tighter.']]},
+{id:'imf',name:'Intermolecular Forces',notes:[
+ '<b>Intermolecular forces</b> (IMFs) act <b>between</b> molecules. Covalent bonds hold atoms together <b>inside</b> a molecule. IMFs are much weaker.',
+ '<b>London dispersion</b>: weak attraction in every molecule. It is the only IMF in nonpolar molecules like CH₄ and gets stronger as molecules get bigger.',
+ '<b>Dipole-dipole</b>: polar molecules attract the opposite ends of each other (for example HCl).',
+ '<b>Hydrogen bonding</b>: the strongest IMF. It needs H bonded directly to N, O, or F. It is why water has such a high boiling point.',
+ 'Stronger IMFs mean a higher boiling point and melting point.'],
+ qs:[
+ ['Intermolecular forces are forces…','Between molecules',['Inside molecules','Inside the nucleus','Between protons and electrons only'],'Bonds are inside molecules. IMFs are attractions between separate molecules.'],
+ ['Which IMF is present in every molecule?','London dispersion',['Hydrogen bonding','Dipole-dipole','Ionic bonding'],'All molecules have electrons that shift and create temporary attractions.'],
+ ['Hydrogen bonding requires hydrogen to be bonded to…','N, O, or F',['C, S, or P','Na, K, or Li','Any nonmetal'],'N, O, and F are small and very electronegative, which makes the H strongly positive.'],
+ ['Why does water boil at a much higher temperature than CH₄?','Water has hydrogen bonds',['Water has stronger covalent bonds','Water is heavier than CH₄','CH₄ is ionic'],'Hydrogen bonds hold water molecules together, so it takes more energy to separate them.'],
+ ['What is the main IMF in nonpolar CH₄?','London dispersion',['Hydrogen bonding','Dipole-dipole','Ionic attraction'],'CH₄ is nonpolar and has no H–N/O/F bond, so only dispersion forces act.'],
+ ['A substance with stronger IMFs will have a…','Higher boiling point',['Lower boiling point','Lower melting point','Smaller molecule size'],'More energy is needed to pull the molecules apart.'],
+ ['Which substance can form hydrogen bonds with its own molecules?','H₂O',['CH₄','CO₂','Cl₂'],'Water has H bonded to O. The other molecules have no H–N/O/F bond.'],
+ ['Which IMF is the strongest of the three?','Hydrogen bonding',['London dispersion','Dipole-dipole','They are all equal'],'Hydrogen bonding is a particularly strong type of dipole attraction.'],
+ ['Dipole-dipole forces occur between…','Polar molecules',['Nonpolar molecules only','Ions','Atoms inside the same molecule'],'Opposite partial charges on neighboring polar molecules attract.'],
+ ['Which substance would you expect to have the lowest boiling point?','CH₄',['H₂O','HF','NH₃'],'CH₄ has only weak London dispersion forces. The others hydrogen bond.'],
+ ['When water boils, what is overcome?','Intermolecular forces between molecules',['Covalent bonds inside molecules','Nuclei','Ionic bonds'],'The molecules separate but each one is still H₂O.'],
+ ['Why do larger nonpolar molecules often have higher boiling points?','Stronger London dispersion forces',['More hydrogen bonds','Stronger covalent bonds','They become ionic'],'More electrons mean stronger temporary attractions.']]}
+];
+
+// ---------- State & helpers ----------
+const best={};let cur=0;
+const $=(s,r=document)=>r.querySelector(s);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const sub=n=>String(n).replace(/\d/g,d=>'₀₁₂₃₄₅₆₇₈₉'[d]);
+
+function nav(){
+ $('#nav').innerHTML=TOPICS.map((t,i)=>`<button data-i="${i}" aria-current="${i==cur}">${t.name}${best[t.id]!=null?`<span class="s">${best[t.id]}/${Math.min(10,t.qs.length)}</span>`:''}</button>`).join('');
+ $('#nav').onclick=e=>{const b=e.target.closest('button');if(b){cur=+b.dataset.i;render()}};
+}
+
+function render(){
+ nav();const t=TOPICS[cur];
+ $('#main').innerHTML=`<section class="panel"><h2>${t.name}</h2><ul class="notes">${t.notes.map(n=>`<li>${n}</li>`).join('')}</ul></section>
+ ${t.explorer?'<section class="panel" id="ex"></section>':''}${t.widget?'<section class="panel" id="wd"></section>':''}
+ <section class="panel" id="quiz"></section>`;
+ if(t.explorer)explorer(t.explorer);
+ if(t.widget==='lewis')lewis();
+ if(t.widget==='ionic')ionic();
+ if(t.widget==='covalent')covalent();
+ if(t.widget==='trends')trends();
+ quiz(t);
+ window.scrollTo({top:0});
+}
+
+// ---------- Periodic table explorer ----------
+function explorer(mode){
+ const box=$('#ex');let sel=null;
+ const modes=[['cat','Element type'],['r','Atomic radius'],['en','Electronegativity']];
+ box.innerHTML=`<h3>Periodic table explorer</h3><p style="margin:0;color:var(--mute)">Choose a view, then tap an element. Shown: elements 1–36.</p>
+ <div class="modes" id="md">${modes.map(([k,l])=>`<button data-m="${k}" aria-pressed="${k==mode}">${l}</button>`).join('')}</div>
+ <div class="legend" id="lg"></div><div class="tbl-wrap"><div id="pt"></div></div><div id="info" aria-live="polite">Tap an element to see its details.</div>`;
+ const draw=()=>{
+  const maxR=243,maxEN=3.98;
+  $('#pt').innerHTML=EL.map(e=>{
+   let bg;
+   if(mode=='cat')bg=`var(${CATVAR[e.c]})`;
+   else if(mode=='r')bg=`color-mix(in srgb,var(--accent) ${Math.round(e.r/maxR*100)}%,var(--card))`;
+   else bg=e.en==null?'var(--card)':`color-mix(in srgb,var(--hi) ${Math.round(e.en/maxEN*100)}%,var(--card))`;
+   return `<button style="grid-column:${e.g};grid-row:${e.p};background:${bg}" data-z="${e.z}" aria-pressed="${sel==e.z}" aria-label="${e.name}">${e.sym}<small>${e.z}</small></button>`}).join('');
+  $('#lg').innerHTML=mode=='cat'?Object.keys(CAT).map(k=>`<span><i style="background:var(${CATVAR[k]})"></i>${CAT[k]}</span>`).join(''):
+   mode=='r'?'Darker means a larger atom. The small number is the atomic number.':'Darker means higher electronegativity. Noble gases mostly have none, so they stay plain.';
+  $('#md').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m==mode));
+ };
+ $('#md').onclick=e=>{const b=e.target.closest('button');if(b){mode=b.dataset.m;draw()}};
+ $('#pt').onclick=e=>{const b=e.target.closest('button');if(!b)return;sel=+b.dataset.z;const x=EL[sel-1];const v=val(x);
+  $('#info').innerHTML=`<b style="font-size:20px">${x.name} (${x.sym})</b><br>Atomic number ${x.z} · Group ${x.g}, Period ${x.p} · ${CAT[x.c]}<br>Valence electrons: ${v??'varies (transition metal)'}`;draw()};
+ draw();
+}
+
+// ---------- Lewis builder ----------
+function lewis(){
+ const box=$('#wd');const opts=EL.filter(e=>e.z<=20&&!(e.z>=21));let z=8;
+ box.innerHTML=`<h3>Lewis dot builder</h3><p style="margin:0;color:var(--mute)">Pick an element to see its valence electrons as dots.</p>
+ <div class="chips" id="ch">${opts.map(e=>`<button data-z="${e.z}" aria-pressed="${e.z==z}">${e.sym}</button>`).join('')}</div>
+ <div class="row"><svg id="ls" viewBox="0 0 160 160" width="160" height="160" role="img"></svg><div id="lt"></div></div>`;
+ const draw=()=>{
+  const e=EL[z-1];let v=val(e);if(e.z==2)v=2;
+  const pos=[[0,-34],[34,0],[0,34],[-34,0]];// top,right,bottom,left
+  const off=[[[-7,0],[7,0]],[[0,-7],[0,7]],[[-7,0],[7,0]],[[0,-7],[0,7]]];
+  let dots='';for(let i=0;i<v;i++){const side=i%4,second=i>=4;const [px,py]=pos[side],[ox,oy]=off[side][second?1:0];
+   const x=80+px+(second?ox:(v>4||e.z==2?ox:0)),y=80+py+(second?oy:(v>4||e.z==2?oy:0));
+   dots+=`<circle cx="${x}" cy="${y}" r="4.5" fill="var(--accent)"/>`}
+  // single dots start centered; pairs split
+  $('#ls').innerHTML=`<text x="80" y="92" text-anchor="middle" font-size="40" font-weight="800" fill="var(--ink)" font-family="Bricolage Grotesque,system-ui,sans-serif">${e.sym}</text>${dots}`;
+  const need=e.z==2?0:(v>=4?8-v:v), full=(e.z==1||e.z==2)?2:8;
+  let msg;
+  if(e.g==18)msg='Full outer shell. Very unreactive.';
+  else if(e.z==1)msg='Needs 1 more electron to fill its shell (like helium).';
+  else if(v<=3)msg=`Tends to <b>lose ${v}</b> electron${v>1?'s':''} and become a ${v}+ cation.`;
+  else if(v==4)msg='Usually <b>shares</b> 4 electrons (covalent bonds).';
+  else msg=`Tends to <b>gain ${8-v}</b> electron${8-v>1?'s':''} (or share) to reach an octet.`;
+  $('#lt').innerHTML=`<div class="out">${e.name}: ${v} valence electron${v>1?'s':''}</div><div>${msg}</div>`;
+  $('#ch').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.z==z));
+ };
+ $('#ch').onclick=e=>{const b=e.target.closest('button');if(b){z=+b.dataset.z;draw()}};
+ draw();
+}
+
+// ---------- Ionic bond builder ----------
+function ionic(){
+ const box=$('#wd');
+ const CA=[['Na',1],['K',1],['Mg',2],['Ca',2],['Al',3]],AN=[['F',1],['Cl',1],['O',2],['S',2],['N',3]];
+ const NM={Na:'sodium',K:'potassium',Mg:'magnesium',Ca:'calcium',Al:'aluminum',F:'fluorine',Cl:'chlorine',O:'oxygen',S:'sulfur',N:'nitrogen'};
+ box.innerHTML=`<h3>Ionic compound builder</h3><p style="margin:0;color:var(--mute)">Choose a metal and a nonmetal. The charges must balance to zero.</p>
+ <div class="row" style="margin-top:10px"><label>Metal <select id="c">${CA.map(c=>`<option>${c[0]}</option>`).join('')}</select></label>
+ <label>Nonmetal <select id="a">${AN.map(c=>`<option>${c[0]}</option>`).join('')}</select></label></div><div id="io"></div>`;
+ const sup=(n,s)=>(n>1?String(n).replace(/\d/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]):'')+s;
+ const draw=()=>{
+  const c=$('#c').value,a=$('#a').value,cc=CA.find(x=>x[0]==c)[1],ac=AN.find(x=>x[0]==a)[1];
+  const l=cc*ac/gcd(cc,ac),nc=l/cc,na=l/ac;
+  const f=c+(nc>1?sub(nc):'')+a+(na>1?sub(na):'');
+  $('#io').innerHTML=`<div class="out">${nc} ${c}${sup(cc,'⁺')} + ${na} ${a}${sup(ac,'⁻')} → ${f}</div>
+  <div>Each ${NM[c]} atom <b>loses ${cc}</b> electron${cc>1?'s':''}. Each ${NM[a]} atom <b>gains ${ac}</b>. Total charge: ${nc*cc}+ and ${na*ac}−, which balances to zero.</div>`;
+ };
+ let after=false;
+ const full=()=>{draw();
+  const c=$('#c').value,a=$('#a').value,cc=CA.find(x=>x[0]==c)[1],ac=AN.find(x=>x[0]==a)[1],l=cc*ac/gcd(cc,ac),nc=l/cc,na=l/ac,n=nc+na;
+  const W=560,st=Math.min(110,(W-80)/n),x0=W/2-st*(n-1)/2,ord=[0,2,4,6,1,3,5,7];
+  const dots=(x,cnt,col,from=0)=>{let o='';for(let k=0;k<cnt;k++){const th=(ord[from+k]*45-90)*Math.PI/180;o+=`<circle cx="${x+38*Math.cos(th)}" cy="${120+38*Math.sin(th)}" r="5" fill="${col}"/>`}return o};
+  let s=`<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker></defs>`;
+  for(let i=0;i<n;i++){const x=x0+st*i,m=i<nc;
+   s+=`<circle cx="${x}" cy="120" r="26" style="fill:var(${m?'--metal':'--nonmetal'});stroke:var(--line)" stroke-width="2"/><text x="${x}" y="130" text-anchor="middle" font-size="24" font-weight="800" fill="var(--ink)">${m?c:a}</text>`;
+   if(m)s+=dots(x,after?0:cc,'var(--hi)');
+   else s+=after?dots(x,8-ac,'var(--accent)')+dots(x,ac,'var(--hi)',8-ac):dots(x,8-ac,'var(--accent)');
+   if(after)s+=`<text x="${x}" y="52" text-anchor="middle" font-size="22" font-weight="800" fill="var(--ink)">${m?(cc>1?cc:'')+'+':(ac>1?ac:'')+'−'}</text>`;
+  }
+  s+=`<line x1="${x0+st*(nc-1)/2}" y1="195" x2="${x0+st*(nc+(na-1)/2)}" y2="195" stroke="var(--ink)" stroke-width="2" marker-end="url(#ah)"/><text x="${W/2}" y="222" text-anchor="middle" font-size="15" fill="var(--mute)">${l} electron${l>1?'s':''} move from metal to nonmetal</text>`;
+  $('#io').insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 560 235" style="width:100%;max-width:560px" role="img" aria-label="Electron transfer diagram">${s}</svg><div style="font-size:14px;color:var(--mute)">Orange dots are the electrons that move. Blue-green dots stay.</div><button class="btn" id="tg" style="margin:8px 0">${after?'Reset to neutral atoms':'Transfer electrons'}</button>`);
+  $('#tg').onclick=()=>{after=!after;full()};
+ };
+ $('#c').onchange=full;$('#a').onchange=full;full();
+}
+
+// ---------- Covalent builder ----------
+function covalent(){
+ const box=$('#wd');let k='H₂O';
+ const V={H:1,C:4,N:5,O:6,F:7,Cl:7},EN={H:2.20,C:2.55,N:3.04,O:3.44,F:3.98,Cl:3.16};
+ const M={
+ 'H₂':{a:[['H',215,150],['H',305,150]],b:[[0,1,1]],note:'Identical atoms pull equally, so the shared pair sits in the middle.'},
+ 'Cl₂':{a:[['Cl',208,150],['Cl',312,150]],b:[[0,1,1]],note:'Each Cl shares one pair and keeps three lone pairs, giving both an octet.'},
+ 'O₂':{a:[['O',210,150],['O',310,150]],b:[[0,1,2]],note:'Two shared pairs make a double bond (4 shared electrons).'},
+ 'N₂':{a:[['N',210,150],['N',310,150]],b:[[0,1,3]],note:'Three shared pairs make a triple bond (6 shared electrons), a very strong bond.'},
+ 'HF':{a:[['H',212,150],['F',308,150]],b:[[0,1,1]],note:'Fluorine pulls the shared pair toward itself, so it is δ⁻ and hydrogen is δ⁺.'},
+ 'H₂O':{a:[['O',260,105],['H',195,180],['H',325,180]],b:[[0,1,1],[0,2,1]],note:'Oxygen pulls both shared pairs. The bent shape makes the whole molecule polar.'},
+ 'NH₃':{a:[['N',260,95],['H',180,150],['H',340,150],['H',260,200]],b:[[0,1,1],[0,2,1],[0,3,1]],note:'Nitrogen shares three pairs and keeps one lone pair.'},
+ 'CH₄':{a:[['C',260,150],['H',260,55],['H',260,245],['H',165,150],['H',355,150]],b:[[0,1,1],[0,2,1],[0,3,1],[0,4,1]],note:'C–H bonds are nearly equal sharing, so methane is nonpolar.'},
+ 'CO₂':{a:[['O',150,150],['C',260,150],['O',370,150]],b:[[0,1,2],[1,2,2]],note:'Each C=O bond is polar, but the molecule is straight and symmetric, so the pulls cancel.'}};
+ box.innerHTML=`<h3>Covalent bond viewer</h3><p style="margin:0;color:var(--mute)">Pick a molecule. Orange dots are <b>shared</b> electrons. Blue-green dots are lone pairs. Darker orange clouds mean a stronger pull on electrons.</p><div class="chips" id="mc">${Object.keys(M).map(m=>`<button data-k="${m}" aria-pressed="${m==k}">${m}</button>`).join('')}</div><svg id="cv" viewBox="0 0 520 300" style="width:100%;max-width:520px" role="img" aria-label="Shared electrons in a covalent molecule"></svg><div id="ci"></div>`;
+ const ad=(x,y)=>{let d=Math.abs(x-y)%(2*Math.PI);return d>Math.PI?2*Math.PI-d:d};
+ const draw=()=>{const m=M[k];
+  const at=m.a.map(([sym,x,y])=>({sym,x,y,r:sym=='H'?40:54,bonds:[],ord:0,net:0}));
+  let clouds='',txt='',lp='',sh='',dl='',info=[];
+  m.b.forEach(([i,j,o])=>{const A=at[i],B=at[j],d=EN[A.sym]-EN[B.sym],pol=Math.abs(d)>=.4;
+   const ang=Math.atan2(B.y-A.y,B.x-A.x);A.bonds.push(ang);B.bonds.push(ang+Math.PI);A.ord+=o;B.ord+=o;
+   if(pol){A.net+=d;B.net-=d}
+   const L=Math.hypot(B.x-A.x,B.y-A.y),ux=(B.x-A.x)/L,uy=(B.y-A.y)/L,s=Math.max(-24,Math.min(24,-d*13));
+   const cx=(A.x+B.x)/2+ux*s,cy=(A.y+B.y)/2+uy*s;
+   for(let p=0;p<o;p++){const t=(p-(o-1)/2)*14;for(const q of[-5,5])sh+=`<circle cx="${cx-uy*t+ux*q}" cy="${cy+ux*t+uy*q}" r="4.5" fill="var(--hi)" stroke="var(--ink)" stroke-width=".8"/>`}
+   const nm=A.sym+['–','=','≡'][o-1]+B.sym;if(!info.some(x=>x[0]==nm||x[0]==B.sym+['–','=','≡'][o-1]+A.sym))info.push([nm,Math.abs(d).toFixed(2),pol])});
+  at.forEach(a=>{
+   clouds+=`<circle cx="${a.x}" cy="${a.y}" r="${a.r}" style="fill:color-mix(in srgb,var(--hi) ${Math.round(EN[a.sym]/3.98*85)}%,var(--card));fill-opacity:.75;stroke:var(--line)" stroke-width="2"/>`;
+   txt+=`<text x="${a.x}" y="${a.y+9}" text-anchor="middle" font-size="28" font-weight="800" fill="var(--ink)">${a.sym}</text>`;
+   if(Math.abs(a.net)>0)dl+=`<text x="${a.x+a.r*.72}" y="${a.y-a.r*.55}" text-anchor="middle" font-size="20" font-weight="800" fill="var(--ink)">${a.net>0?'δ⁻':'δ⁺'}</text>`;
+   const n=(V[a.sym]-a.ord)/2,placed=[...a.bonds];
+   for(let i=0;i<n;i++){let best=0,bd=-1;for(let c=0;c<12;c++){const th=c*Math.PI/6,md=Math.min(...placed.map(p=>ad(th,p)),9);if(md>bd+1e-6){bd=md;best=th}}placed.push(best);
+    const px=a.x+32*Math.cos(best),py=a.y+32*Math.sin(best);for(const q of[-5,5])lp+=`<circle cx="${px-Math.sin(best)*q}" cy="${py+Math.cos(best)*q}" r="4" fill="var(--accent)"/>`}
+  });
+  $('#cv').innerHTML=clouds+txt+lp+sh+dl;
+  const polar=info.some(x=>x[2]);
+  $('#ci').innerHTML=`<div class="out">${k}: ${polar?'polar':'nonpolar'} covalent bond${m.b.length>1?'s':''}</div><div>${info.map(x=>`${x[0]}: ${x[2]?'unequal sharing, so polar':'equal sharing, so nonpolar'}`).join('<br>')}</div><div style="margin-top:6px">${m.note}</div><div style="font-size:14px;color:var(--mute);margin-top:6px">Rule of thumb: a small electronegativity difference means nonpolar. A large difference means polar.</div>`;
+  $('#mc').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k==k));
+ };
+ $('#mc').onclick=e=>{const b=e.target.closest('button');if(b){k=b.dataset.k;draw()}};
+ draw();
+}
+
+// ---------- Trend charts ----------
+function trends(){
+ const box=$('#wd');let sk='Period 2 (Li to Ne)',pk='r';
+ const IE={H:1312,He:2372,Li:520,Be:900,B:801,C:1086,N:1402,O:1314,F:1681,Ne:2081,Na:496,Mg:738,Al:578,Si:787,P:1012,S:1000,Cl:1251,Ar:1521,K:419,Ca:590,Sc:633,Ti:659,V:651,Cr:653,Mn:717,Fe:763,Co:760,Ni:737,Cu:746,Zn:906,Ga:579,Ge:762,As:947,Se:941,Br:1143,Kr:1351};
+ const S={'Period 2 (Li to Ne)':e=>e.p==2,'Period 3 (Na to Ar)':e=>e.p==3,'Period 4 (K to Kr)':e=>e.p==4,'Group 1 (Li, Na, K)':e=>e.g==1&&e.z>1,'Group 2 (Be, Mg, Ca)':e=>e.g==2,'Group 17 (F, Cl, Br)':e=>e.g==17,'Group 18 (He to Kr)':e=>e.g==18};
+ const P={r:['Atomic radius','pm',e=>e.r],en:['Electronegativity','',e=>e.en],ie:['Ionization energy','kJ/mol',e=>IE[e.sym]]};
+ box.innerHTML=`<h3>Trend charts</h3><p style="margin:0;color:var(--mute)">Choose a property and a row or column, then read the bars.</p><div class="chips" id="pc">${Object.entries(P).map(([k,v])=>`<button data-k="${k}" aria-pressed="${k==pk}">${v[0]}</button>`).join('')}</div><label>Compare <select id="sk">${Object.keys(S).map(x=>`<option>${x}</option>`).join('')}</select></label><svg id="tc" viewBox="0 0 560 270" style="width:100%;margin-top:8px" role="img"></svg><div id="td"></div>`;
+ const draw=()=>{
+  const items=EL.filter(S[sk]),[nm,u,f]=P[pk],vals=items.map(f),mx=Math.max(...vals.filter(v=>v!=null)),n=items.length,bw=Math.min(50,(500/n)*.7),st=500/n;
+  let s=`<line x1="30" y1="220" x2="550" y2="220" stroke="var(--line)" stroke-width="2"/>`;
+  items.forEach((e,i)=>{const v=vals[i],x=40+st*i+st/2,h=v==null?0:v/mx*180;
+   s+=`<rect x="${x-bw/2}" y="${220-h}" width="${bw}" height="${h}" rx="3" fill="var(--accent)"/><text x="${x}" y="${215-h}" text-anchor="middle" font-size="${n>10?10:13}" fill="var(--ink)">${v==null?'–':''}</text><text x="${x}" y="242" text-anchor="middle" font-size="${n>10?12:15}" font-weight="800" fill="var(--ink)">${e.sym}</text>`});
+  s+=`<text x="30" y="16" font-size="14" fill="var(--mute)">${nm} (taller bar = higher)</text><text x="550" y="262" text-anchor="end" font-size="13" fill="var(--mute)">${sk.startsWith('Period')?'left to right →':'top to bottom ↓'}</text>`;
+  $('#tc').innerHTML=s;$('#tc').setAttribute('aria-label',nm+' for '+sk);
+  const ok=items.filter((e,i)=>vals[i]!=null);
+  let d;
+  if(ok.length<2)d='Noble gases mostly have no electronegativity value because they almost never form bonds.';
+  else{const a=ok[0],b=ok[ok.length-1],va=f(a),vb=f(b);d=`Overall, ${nm.toLowerCase()} <b>${vb<va?'decreases':'increases'}</b> from ${a.name} to ${b.name}.`+(pk=='ie'&&sk.startsWith('Period')?' Small dips are normal. Look at the overall direction.':'')}
+  $('#td').innerHTML=`<div style="margin-top:6px">${d}</div>`;
+  $('#pc').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k==pk));
+ };
+ $('#pc').onclick=e=>{const b=e.target.closest('button');if(b){pk=b.dataset.k;draw()}};
+ $('#sk').onchange=e=>{sk=e.target.value;draw()};
+ draw();
+}
+
+// ---------- Quiz ----------
+function quiz(t){
+ const box=$('#quiz');let qs=shuffle(t.qs).slice(0,10),done=0,score=0;
+ const build=()=>{
+  qs=shuffle(t.qs).slice(0,10);done=0;score=0;
+  box.innerHTML=`<h3>Check your understanding</h3>`+qs.map((q,i)=>{
+   const o=shuffle([q[1],...q[2]]);
+   return `<div class="q" data-i="${i}"><p>${i+1}. ${q[0]}</p><div class="opts">${o.map(x=>`<button class="opt" data-a="${x.replace(/"/g,'&quot;')}">${x}</button>`).join('')}</div><div class="why" hidden></div></div>`}).join('')+`<div class="score" id="sc" aria-live="polite"></div>`;
+ };
+ build();
+ box.onclick=e=>{
+  const b=e.target.closest('.opt');
+  if(b){const q=b.closest('.q'),d=qs[+q.dataset.i],ok=b.dataset.a===d[1];
+   q.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(x.dataset.a===d[1])x.classList.add('right')});
+   if(!ok)b.classList.add('wrong');
+   const w=$('.why',q);w.hidden=false;w.innerHTML=(ok?'<b>Correct.</b> ':'<b>Not quite.</b> ')+d[3];
+   done++;if(ok)score++;
+   if(done==qs.length){best[t.id]=Math.max(best[t.id]??0,score);nav();
+    $('#sc').innerHTML=`Score: ${score} / ${qs.length}. ${score==qs.length?'Perfect!':score>=qs.length-1?'Nearly there.':'Re-read the notes and try again.'} <button class="btn" id="re">Try again</button>`;}
+   return}
+  if(e.target.id==='re'){build();box.scrollIntoView()}
+ };
+}
+render();
+</script>
+</body>
+</html>
